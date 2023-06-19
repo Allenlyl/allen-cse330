@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+</head>
+
+<body>
+    <form name="input" action="calculator.php" method="get">
+        <table>
+            <!-- num1 -->
+            <tr>
+                <td>First number: </td>
+                <td><input type="text" name="num1" id="num1"></td>
+            </tr>
+            <!-- operation -->
+            <tr>
+                <td>Operation: </td>
+                <td><select name="operation" id="operation">
+                        <option value="none" selected="selected">Please select</option>
+                        <option value="addition">+</option>
+                        <option value="subtraction">-</option>
+                        <option value="multiplication">*</option>
+                        <option value="division">/</option>
+                    </select>
+                </td>
+            </tr>
+            <!-- num2 -->
+            <tr>
+                <td>Second number:</td>
+                <td><input type="text" name="num2" id="num2"></td>
+            </tr>
+            <!-- submit and reset -->
+            <tr>
+                <td><input type="submit" name="submit"></td>
+                <td><input type="reset" name="reset"></td>
+            </tr>
+            <!-- answer
+            <tr>
+                <td>Answer:</td>
+                <td><input type="text" name="answer" id="answer"></td>
+            </tr> -->
+        </table>
+    </form>
+</body>
+
+</html>

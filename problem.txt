@@ -1,0 +1,491 @@
+Login page html file:
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<body>
+    <h3>Login</h3>
+    <form action="login.php" method="POST">
+        <label for="username">Username: </label>
+        <input type="text" name="username" id="username"><br><br>
+    </form>
+    <input type="submit" value="Login">
+</body>
+
+</html>
+The login php file that will direct to the user_page.html
+<?php
+//Starting the session
+session_start();
+//Function that checks whether the username is valid, return true if valid
+function checkUsername($username)
+{
+    //Read the file line by line and compare it with the given username
+    $h = fopen('files/users.txt', 'r');
+    while (!feof($h)) {
+        if ($username == trim(fgets($h))) {
+            fclose($h);
+            return true;
+        }
+    }
+    fclose($h);
+    return false;
+}
+
+//var_dump($_SESSION['username']);
+
+//When the form is submitted, check the username's validity, if valid set
+//the session name to username and redirect to the logged-in page
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    if (checkUsername($username)) {
+        $_SESSION['username'] = $username;
+        header('Location: user_page.html');
+        exit;
+    } else {
+        echo "Invalid username, please try again!";
+    }
+}
+
+the user_page.html file:
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main page</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <?php
+    session_start();
+    var_dump($_SESSION['username']);
+    ?>
+
+    <h2>
+        Welcome
+        <?php echo $_SESSION['username']; ?> !
+    </h2>
+    <div>
+        <h5>
+            <?php echo $_SESSION['username']; ?>'s folder
+        </h5>
+        <ul>
+            <?php include('file_list.php') ?>
+        </ul>
+    </div>
+</body>
+
+</html>
+
+The var_dump($_SESSION['username']); is actually not working above and I dont know why. the following is the file_list.php file:
+
+<?php
+session_start();
+//The directory where the username folder is
+//scandir() returns an array of the file list in the directory
+function retrieveFile($directory)
+{
+    return array_diff(scandir($directory), array('.', '..'));
+}
+var_dump($_SESSION['username']);
+$directory = 'files/' . $_SESSION['username'];
+$fileList = retrieveFile($directory);
+//If the file list is not empty
+if (!empty($fileList)) {
+    echo '<ul>';
+    foreach ($fileList as $file) {
+        echo $file;
+        //echo "<li><a href="files/' . $directory/$file">" . $file . '</a></li>';
+        printf(
+            '<li><a href="%s/%s">%s</a></li>',
+            htmlentities($directory),
+            htmlentities($file),
+            htmlentities($file)
+        );
+    }
+    echo '</ul>';
+} else {
+    echo "The folder is empty";
+}
+
+Can you tell me what is wrong with my code? thank you!
+
+
+
+
+
+
+
+
+
+
+
+file_list.php:
+<?php
+session_start();
+//The directory where the username folder is
+//scandir() returns an array of the file list in the directory
+function retrieveFile($directory)
+{
+    return array_diff(scandir($directory), array('.', '..'));
+}
+var_dump($_SESSION['username']);
+$directory = 'files/' . $_SESSION['username'];
+$fileList = retrieveFile($directory);
+//If the file list is not empty
+if (!empty($fileList)) {
+    echo '<ul>';
+    foreach ($fileList as $file) {
+        //echo "<li><a href="files/' . $directory/$file">" . $file . '</a></li>';
+        printf(
+            '<li><a href="%s/%s">%s</a></li>',
+            htmlentities($directory),
+            htmlentities($file),
+            htmlentities($file)
+        );
+    }
+    echo '</ul>';
+} else {
+    echo "The folder is empty";
+}
+
+file_list_public.php:
+<?php
+session_start();
+include 'file_list.php';
+$directory = 'files/public';
+$fileList = retrieveFile($directory);
+if (!empty($fileList)) {
+    echo '<ul>';
+    for ($i = 0; $i < count($fileList); $i++) {
+        printf(
+            '<li><a href="%s/%s">%s</a></li>',
+            htmlentities($directory),
+            htmlentities($fileList[$i]),
+            htmlentities($fileList[$i]),
+        );
+    }
+    echo '</ul>';
+}
+
+user_page.php:
+<?php
+session_start();
+var_dump($_SESSION['username']);
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main page</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <h2>
+        Welcome
+        <?php echo $_SESSION['username']; ?> !
+    </h2>
+    <div>
+        <h5>
+            <?php echo $_SESSION['username']; ?> folder
+        </h5>
+        <ul>
+            <?php include('file_list.php') ?>
+        </ul>
+    </div>
+    <div>
+        <!-- Upload the file -->
+        <form action="file_upload.php" , method="post">
+            <button type="submit" name="upload">Upload</button>
+        </form>
+        <!-- Delete the file -->
+        <form action="file_delete.php" , method="post">
+            <button type="submit" name="delete">Delete</button>
+        </form>
+    </div>
+    <div>
+        <h5>public folder</h5>
+        <?php include 'file_list_public.php' ?>
+    </div>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+file_list_public.php:
+<?php
+include 'file_list.php';
+$directory = 'files/public';
+$fileList = retrieveFile($directory);
+if (!empty($fileList)) {
+    echo '<ul>';
+    foreach ($fileList as $file) {
+        printf(
+            '<li><a href="%s/%s">%s</a></li>',
+            htmlentities($directory),
+            htmlentities($file),
+            htmlentities($file)
+        );
+    }
+    echo '</ul>';
+}
+
+
+
+file_list.php:
+<?php
+//The directory where the username folder is
+//scandir() returns an array of the file list in the directory
+function retrieveFile($directory)
+{
+    return array_diff(scandir($directory), array('.', '..'));
+}
+//var_dump($_SESSION['username']);
+$directory = 'files/' . $_SESSION['username'];
+$fileList = retrieveFile($directory);
+//If the file list is not empty
+if (!empty($fileList)) {
+    echo '<ul>';
+    foreach ($fileList as $file) {
+        //echo "<li><a href="files/' . $directory/$file">" . $file . '</a></li>';
+        printf(
+            '<li><a href="%s/%s">%s</a></li>',
+            htmlentities($directory),
+            htmlentities($file),
+            htmlentities($file)
+        );
+    }
+    echo '</ul>';
+} else {
+    echo "The folder is empty";
+}
+
+
+
+user_page.php:
+<?php
+session_start();
+var_dump($_SESSION['username']);
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main page</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <h2>
+        Welcome
+        <?php echo $_SESSION['username']; ?> !
+    </h2>
+    <div>
+        <h5>
+            <?php echo $_SESSION['username']; ?> folder
+        </h5>
+        <?php include 'file_list.php'; ?>
+    </div>
+    <div>
+        <!-- Upload the file -->
+        <form action="file_upload.php" , method="post">
+            <button type="submit" name="upload">Upload</button>
+        </form>
+        <!-- Delete the file -->
+        <form action="file_delete.php" , method="post">
+            <button type="submit" name="delete">Delete</button>
+        </form>
+    </div>
+    <div>
+        <h5>public folder</h5>
+        <?php include 'file_list_public.php'; ?>
+    </div>
+</body>
+
+</html>
+
+
+i am still getting error:
+Fatal error: Cannot redeclare retrieveFile() (previously declared in /Users/apple/Desktop/cs/CSE330/module2/file-sharing/file_list.php:4) in /Users/apple/Desktop/cs/CSE330/module2/file-sharing/file_list.php on line 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+When I log in to the user page and try to upload a file, I don't think the upload file.php was loaded successfully as i am getting an empty page. Can you tell me what is wrong? thank you
+
+user page.php:
+
+<?php
+session_start();
+//var_dump($_SESSION['username']);
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main page</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <h2>
+        Welcome
+        <?php echo $_SESSION['username']; ?> !
+    </h2>
+    <div>
+        <h5>
+            <?php echo $_SESSION['username']; ?> folder
+        </h5>
+        <?php include_once 'file_list.php'; ?>
+    </div>
+    <table>
+        <tr>
+            <td>
+                <!-- Upload the file -->
+                <form action="file_upload_user.php" method="post" name="file">
+                    <input type="file" name="file" /><br>
+                    <input type="submit" value="Upload" />
+                </form>
+            </td>
+            <td>
+                <!-- Delete the file -->
+                <form action="file_delete.php" , method="post">
+                    <button type="submit" name="delete">Delete</button>
+                </form>
+            </td>
+        </tr>
+
+    </table>
+    <div>
+        <h5>public folder</h5>
+        <?php include_once 'file_list_public.php'; ?>
+    </div>
+</body>
+
+</html>
+
+file uploade.php
+
+<?php
+var_dump("hello world!");
+var_dump($_FILES['file']['name']);
+function checkDirPermission($directory)
+{
+    if (!is_writable($directory)) {
+        chmod($directory, 0777);
+    }
+}
+//Variables
+$filename = basename($_FILES['file']['name']);
+$tempDirectory = $_FILES['file']['tmp_name'];
+$targetDirectory = 'files/' . $_SESSION['username'] . '/'; //target directory path
+$targetFilePath = $targetDirectory . basename($_FILES['file']['name']); //target file path
+$fileType = pathinfo($_FILES['file']['temp_name'], PATHINFO_EXTENSION);
+//Check if the file uploaded is valid(file name and type and size)
+if (isset($_POST['submit'])) {
+    //Check the target directory permission
+    checkDirPermission($targetDirectory);
+    $correctFileType = array("pdf", "jpg", "jpeg", "png");
+    //If the file exist, delete it
+    if (file_exists($targetFilePath)) {
+        unlink($targetFilePath);
+    } elseif (!preg_match('/^[a-zA-Z0-9]+$/', $filename)) {
+        $message = "Invalid file name";
+        $status = "error";
+    } elseif (!in_array($fileType, $correctFileType)) {
+        $message = "Invalid file format";
+        $status = "error";
+    } elseif ($_FILES['file']['size'] > 2 * 1024 * 1024) { //file size should be under 2MB
+        $message = "The file is oversized";
+        $status = "error";
+    } else {
+        //Move the file to the target directory
+        if (move_uploaded_file($tempDirectory, $targetFilePath)) {
+            $message = $filename . " is uploaded successfully!";
+            $status = "success";
+        } else {
+            //header("Location: after_upload.html");
+            $message = $filename . " failed to upload";
+            $status = "error";
+        }
+    }
+    $_SESSION['message'] = $message;
+    $_SESSION['status'] = $status;
+    header("Location: after_upload.php");
+    exit($message);
+}
+
+
+after upload.php
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload summary</title>
+</head>
+
+<body>
+    <?php
+    $message = $_SESSION['message'];
+    $status = $_SESSION['status'];
+    echo "<p>$status</p>";
+    echo "<p>$message</p>";
+    ?>
+    <a href="user-page.php" target="_self">
+        <button type="button">Go back</button>
+    </a>
+</body>
+
+</html>

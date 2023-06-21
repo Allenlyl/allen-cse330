@@ -8,27 +8,32 @@
 </head>
 <body>
     <?php
-        $num1 = isset($_GET['num1']) ? floatval($_GET['num1']) : '';
-        $num2 = isset($_GET['num2']) ? floatval($_GET['num2']) : '';
+        $num1 = isset($_GET['num1']) ? $_GET['num1'] : '';
+        $num2 = isset($_GET['num2']) ? $_GET['num2'] : '';
         $operator = isset($_GET['operation']) ? $_GET['operation'] : '';
         $answer = '';
 
         if($num1 != '' && $num2 != '' && $operator != '') {
             switch($operator) {
-                case 'addition':
+                case '+':
                     $answer = $num1 + $num2;
-                case 'subtraction':
+                    break;
+                case '-':
                     $answer = $num1 - $num2;
-                case 'multiplication':
+                    break;
+                case '*':
                     $answer = $num1 * $num2;
-                case 'division':
+                    break;
+                case '/':
                     $answer = $num1 / $num2;
-                case 'none':
+                    break;
+                default:
                     $answer = 'Invalid operator';
+                    break;
             }
         } else {
-            header("calculator.html");
-            exit();
+            //header("Location: calculator.html");
+            //exit();
         }
         printf("%s %s %s = %s", 
                 htmlentities($num1), 

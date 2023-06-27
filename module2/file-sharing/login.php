@@ -24,9 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     if (checkUsername($username)) {
         $_SESSION['username'] = $username;
+        //Create a folder for the user if she does not have one
+        $directory = 'files/' . $username;
+        if (!file_exists($directory)) {
+            mkdir($directory, 0777);
+        }
         header('Location: user_page.php');
         exit;
     } else {
         echo "Invalid username, please try again!";
+        echo '<br>';
+        echo '<a href="login.html">Go back</a>';
     }
 }

@@ -18,9 +18,10 @@ session_start();
     echo "<p>" . htmlentities($status) . "</p>";
     echo "<p>" . htmlentities($message) . "</p>";
     ?>
-    <form action="user_page.php" method="post">
+    <!-- <form action="user_page.php" method="post">
         <input type="submit" value="Go back">
-    </form>
+    </form> -->
+    <a href="user_page.php"> --&gtGo back&lt-- </a>
 </body>
 
 </html>

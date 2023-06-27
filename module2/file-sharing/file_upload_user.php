@@ -1,32 +1,48 @@
 <?php
 session_start();
-//var_dump("hello world!");
-//var_dump($_FILES['file']['name']);
+
+//Check if the directory is writable, if not set it to writable
 function checkDirPermission($directory)
 {
     if (!is_writable($directory)) {
         chmod($directory, 0777);
     }
 }
-//var_dump($_SESSION['username']);
+function getTargetFilePath($filename, $targetDirectory)
+{
+    $targetpath = $targetDirectory . $filename;
+    return $targetpath;
+}
+
 //Variables
+//$_FILES is the superglobal variable of the uploaded file in the form
 $filename = basename($_FILES['file']['name']);
-$tmpDirectory = $_FILES['file']['tmp_name'];
+$tmpDirectory = $_FILES['file']['tmp_name']; //temporary file path
 $targetDirectory = 'files/' . $_SESSION['username'] . '/'; //target directory path
-$targetFilePath = $targetDirectory . basename($_FILES['file']['name']); //target file path
-$fileFormat = pathinfo($_FILES['file']['tmp_name'], PATHINFO_EXTENSION);
+//$fileFormat = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION); //get the format of the file
+
 //Check if the file uploaded is valid(file name and type and size)
+$targetFilePath = getTargetFilePath($filename, $targetDirectory);
 if (isset($_POST['submit'])) {
     //Check the target directory permission
     checkDirPermission($targetDirectory);
-    $correctFileFormat = array("pdf", "jpg", "jpeg", "png", "txt", "html", "php");
+    //Extract the format of the file (MIME)
+    $fileFormat = $_FILES['file']['type'];
+    $correctFileFormat = array(
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'text/plain',
+        'text/html',
+        'text/php'
+    );
     //If the file exist, delete it
     if ($targetFilePath === $targetDirectory) {
         $message = "Can't upload nothing";
         $status = "error";
     } elseif (file_exists($targetFilePath) && $targetFilePath != $targetDirectory) {
         unlink($targetFilePath);
-    } elseif (!preg_match('/^[a-zA-Z0-9._-]+$/', $filename)) {
+    } elseif (!preg_match('/^[a-zA-Z0-9\._-]+$/', $filename)) {
         $message = "Invalid file name";
         $status = "error";
     } elseif (!in_array($fileFormat, $correctFileFormat)) {
